@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -20,13 +21,24 @@ class _ViewEmployeeState extends State<ViewEmployee> {
         centerTitle: true,
         backgroundColor: Colors.amber,
       ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            getEmployeeData();
-          },
-          child: const Text("Click here!"),
-        ),
+      body: ListView.builder(
+        itemCount: empData.length,
+        itemBuilder: (context, index) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(empData[index]['employee_name']),
+              const SizedBox(
+                width: 15,
+              ),
+              Text("${empData[index]['employee_salary']}"),
+            ],
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: getEmployeeData,
+        child: const Text("Click here!"),
       ),
     );
   }
@@ -34,7 +46,12 @@ class _ViewEmployeeState extends State<ViewEmployee> {
   void getEmployeeData() async {
     Uri url = Uri.parse("https://dummy.restapiexample.com/api/v1/employees");
     http.Response response = await http.get(url);
-    log("$response");
-    log("${response.body}");
+    log(response.body);
+
+    var responseData = json.decode(response.body);
+
+    setState(() {
+      empData = responseData['data'];
+    });
   }
 }
